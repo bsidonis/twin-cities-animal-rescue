@@ -91,6 +91,7 @@
                     </p>
                 </fieldset>
             </form>
+            <p id="form-message" role="status" aria-live="polite"></p>
         </section>
 
         <section>
@@ -119,5 +120,86 @@
         <p>&copy; 2026 Twin Cities Animal Rescue</p>
         <p>Thank you for caring about animals in need.</p>
     </footer>
-</body>
+<script>
+  // The fields we want to remember
+  const fieldIds = [
+    "name",
+    "email",
+    "interest",
+    "availability",
+    "message"
+  ];
+
+  const form = document.getElementById("contact-form");
+  const message = document.getElementById("form-message");
+
+  // Collect form information into an object
+  function getFormData() {
+    const data = {};
+
+    fieldIds.forEach(function (id) {
+      const field = document.getElementById(id);
+      if (field) data[id] = field.value;
+    });
+
+    return data;
+  }
+
+  // Save information in the browser
+  function saveFormData() {
+    localStorage.setItem(
+      "rescueContactData",
+      JSON.stringify(getFormData())
+    );
+  }
+
+  // Restore saved information after a refresh
+  function loadFormData() {
+    const saved = localStorage.getItem("rescueContactData");
+    if (!saved) return;
+
+    try {
+      const data = JSON.parse(saved);
+
+      fieldIds.forEach(function (id) {
+        const field = document.getElementById(id);
+        if (field && data[id] !== undefined) {
+          field.value = data[id];
+        }
+      });
+    } catch (error) {
+      localStorage.removeItem("rescueContactData");
+    }
+  }
+
+  // Show a confirmation message
+  function showConfirmation() {
+    message.textContent =
+      "Thank you for contacting Twin Cities Animal Rescue!";
+    message.style.color = "#6B3E26";
+    message.style.fontWeight = "bold";
+  }
+
+  // Restore saved information when the page opens
+  loadFormData();
+
+  // Save information when a visitor changes a field
+  fieldIds.forEach(function (id) {
+    const field = document.getElementById(id);
+
+    if (field) {
+      field.addEventListener("input", saveFormData);
+      field.addEventListener("change", saveFormData);
+    }
+  });
+
+  // Respond to form submission
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    showConfirmation();
+
+    localStorage.removeItem("rescueContactData");
+    form.reset();
+  });
+</script> </body>
 </html>
